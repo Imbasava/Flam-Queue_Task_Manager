@@ -26,7 +26,7 @@ program
 // =============================================================
 program
   .command("enqueue <jobJson>")
-  .description("Add a new job to the queue")
+  .description("Add a new job to the queue (supports delay & priority)")
   .action((jobJson) => {
     try {
       const data = JSON.parse(jobJson);
@@ -36,14 +36,29 @@ program
         process.exit(1);
       }
 
+      // --- Scheduled / Delayed Jobs (in seconds) ---
+      if (data.delay) {
+        const delayMs = Number(data.delay) * 1000;
+        data.run_after = new Date(Date.now() + delayMs).toISOString();
+      }
+
+      // --- Job Priority (0 = normal, higher = more urgent) ---
+      if (data.priority && typeof data.priority !== "number") {
+        console.warn("⚠️  Priority must be a number. Defaulting to 0.");
+        data.priority = 0;
+      }
+
       const job = insertJob(data);
-      console.log(`✅ Job enqueued: ${job.id}`);
+      console.log(
+        `✅ Job enqueued: ${job.id} | command="${job.command}"${
+          data.delay ? ` | delay=${data.delay}s` : ""
+        }${data.priority ? ` | priority=${data.priority}` : ""}`
+      );
     } catch (err) {
       console.error("❌ Failed to enqueue job:", err.message);
       process.exit(1);
     }
   });
-
 // =============================================================
 // WORKER COMMANDS
 // =============================================================
