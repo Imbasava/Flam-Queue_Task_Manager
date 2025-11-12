@@ -7,6 +7,7 @@ function insertJob(jobData) {
   // defaults
   const now = new Date().toISOString();
   const job = {
+    priority: jobData.priority || 0,
     id: jobData.id || uuidv4(),
     command: jobData.command,
     state: "pending",
@@ -21,15 +22,18 @@ function insertJob(jobData) {
     stderr: null,
   };
 
-  const stmt = db.prepare(
-    `INSERT INTO jobs (
-      id, command, state, attempts, max_retries,
-      created_at, updated_at, run_after, last_error,
-      worker_id, stdout, stderr
-    ) VALUES (@id, @command, @state, @attempts, @max_retries,
-      @created_at, @updated_at, @run_after, @last_error,
-      @worker_id, @stdout, @stderr)`
-  );
+  const stmt = db.prepare(`
+  INSERT INTO jobs (
+    id, command, state, attempts, max_retries,
+    created_at, updated_at, run_after, last_error,
+    worker_id, stdout, stderr, priority
+  ) VALUES (
+    @id, @command, @state, @attempts, @max_retries,
+    @created_at, @updated_at, @run_after, @last_error,
+    @worker_id, @stdout, @stderr, @priority
+  )
+`);
+
   stmt.run(job);
   db.close();
   return job;
