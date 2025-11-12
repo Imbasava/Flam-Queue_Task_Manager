@@ -1,8 +1,11 @@
 
-
 ---
 
 # 🚀 QueueCTL — Background Job Queue System
+<p align="center">
+  <img src="image.png" alt="QueueCTL Dashboard" width="800"/>
+</p>
+
 
 A **CLI-based background job queue** with worker processes, automatic retries, exponential backoff, a Dead Letter Queue (DLQ), and a live monitoring dashboard.
 
